@@ -15,7 +15,7 @@
       <% tags.forEach((tag) => { %>
         <!-- Highlight the current tag -->
         <a href="/shop/<%= tag %>" 
-           class="badge text-decoration-none p-2 <%= currentTag === tag ? 'bg-primary text-light' : 'bg-primary' %>">
+           class="badge text-decoration-none p-2 <%= currentTag === tag ? 'bg-secondary text-light' : 'bg-primary' %>">
           <%= tag %>
         </a>
       <% }); %>

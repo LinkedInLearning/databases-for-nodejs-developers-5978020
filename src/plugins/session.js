@@ -2,7 +2,6 @@ import fp from "fastify-plugin";
 import fastifySecureSession from "@fastify/secure-session";
 
 async function sessionPlugin(fastify, config) {
-  // Fetch the encryption key from environment variables or config
   const secret = config.secret;
 
   if (!secret) {
@@ -11,38 +10,39 @@ async function sessionPlugin(fastify, config) {
     );
   }
 
-  // Register the fastify-secure-session plugin
+  // Register fastify-secure-session
   fastify.register(fastifySecureSession, {
-    key: Buffer.from(secret, "base64"), // Convert the base64-encoded string to a Buffer
+    key: Buffer.from(secret, "base64"),
     cookie: {
       path: "/",
-      httpOnly: true, // Accessible only via HTTP
-      secure: false, // Set true in production with HTTPS
+      httpOnly: true,
+      secure: false,
       maxAge: 3600 // 1-hour session expiration
     }
   });
 
-  // Decorate for clearing session
+  // Decorate to clear session
   fastify.decorate("clearSession", (req) => {
     req.session.delete();
   });
 
-  // Add a preHandler hook to populate template variables
+  // PreHandler: Attach session messages to locals
   fastify.addHook("preHandler", async (req, reply) => {
-    const user = req.session.get("user");
-    const messages = req.session.get("messages") || [];
-
     reply.locals = {
       ...(reply.locals || {}),
-      currentUser: user || null, // Set currentUser
-      messages // Add messages to locals
+      currentUser: req.session.get("user") || null,
+      messages: req.session.get("messages") || []
     };
   });
 
-  // Clear messages only after the response is sent
-  fastify.addHook("onSend", async (req, reply, payload) => {
-    req.session.set("messages", []); // Clear messages only after response is sent
-    return payload;
+  // Decorate reply.view to clear messages **after** rendering
+  fastify.addHook("onRequest", async (req, reply) => {
+    const originalView = reply.view;
+    reply.view = function (template, data) {
+      const result = originalView.call(this, template, data);
+      req.session.set("messages", []); // Clear messages after rendering
+      return result;
+    };
   });
 }
 

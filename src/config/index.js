@@ -9,6 +9,12 @@ export const config = {
       socketTimeoutMS: 3000
     }
   },
+  mysql: {
+    uri: "mysql://root:secret@localhost:3306/simpleshop",
+    options: {
+      logging: false
+    }
+  },
   session: {
     // Secret key to encrypt client side sessions.
     // Created on the terminal with `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`

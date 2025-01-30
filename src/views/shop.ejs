@@ -1,82 +1,80 @@
 <div class="row">
   <div class="col-md-12">
-    <h1><%= title %></h1>
+    <h1 class="mb-4">Manage Items</h1>
+
+    <% if (items && items.length) { %>
+      <table class="table table-hover align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th scope="col">SKU</th>
+            <th scope="col">Name</th>
+            <th scope="col">Price</th>
+            <th scope="col">Tags</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% items.forEach((item) => { %>
+            <tr>
+              <td><%= item.sku %></td>
+              <td><%= item.name %></td>
+              <td><%= item.price %></td>
+              <td><%= (item.tags && Array.isArray(item.tags)) ? item.tags.join(", ") : '' %></td>
+              <td>
+                <a class="btn btn-primary btn-sm me-1" href="/admin/item/<%= item._id %>" role="button">Edit Item</a>
+                <a class="btn btn-danger btn-sm" href="/admin/item/delete/<%= item._id %>" role="button">Delete Item</a>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <p class="lead">No items found</p>
+    <% } %>
   </div>
 </div>
 
-<!-- Tags Section -->
-<div class="row my-3">
+<div class="row">
   <div class="col-md-12">
-    <h5>Filter by Tags:</h5>
-    <div class="d-flex flex-wrap gap-2">
-      <!-- Add a "Clear Tags" link -->
-      <a href="/shop" 
-         class="badge btn-danger text-decoration-none p-2">Clear Tags</a>
-      <% tags.forEach((tag) => { %>
-        <!-- Highlight the current tag -->
-        <a href="/shop/<%= tag %>" 
-           class="badge text-decoration-none p-2 <%= currentTag === tag ? 'bg-primary text-light' : 'bg-primary' %>">
-          <%= tag %>
-        </a>
-      <% }); %>
+    <div class="card shadow-sm">
+      <div class="card-header bg-secondary text-white">
+        <% if (!item) { %>
+          <h5 class="mb-0">Create Item</h5>
+        <% } else { %>
+          <h5 class="mb-0">Edit Item</h5>
+        <% } %> 
+      </div>
+      <div class="card-body">
+        <form method="POST" action="/admin/item" autocomplete="off">
+          <input type="hidden" name="itemId" value="<%= item ? item._id : '' %>">
+
+          <div class="mb-3">
+            <label class="form-label" for="sku">SKU</label>
+            <input id="sku" class="form-control" type="number" name="sku" autocomplete="off" value="<%= item ? item.sku : '' %>" placeholder="Enter SKU">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="name">Name</label>
+            <input id="name" class="form-control" type="text" name="name" autocomplete="off" value="<%= item ? item.name : '' %>" placeholder="Enter item name">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="price">Price</label>
+            <input id="price" class="form-control" type="text" name="price" autocomplete="off" value="<%= item ? item.price : '' %>" placeholder="Enter item price">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="tags">Tags</label>
+            <input id="tags" class="form-control" type="text" name="tags" autocomplete="off" value="<%= (item && item.tags && Array.isArray(item.tags)) ? item.tags.join(', ') : '' %>" placeholder="Enter tags, separated by commas">
+            <small class="text-muted">Example: electronics, home, sale</small>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-success">Submit</button>
+            <a class="btn btn-danger" href="/admin/item" role="button">Reset</a>
+          </div>
+        </form>
+      </div> 
     </div>
   </div>
 </div>
-
-<!-- Items Section -->
-<% if (items && items.length) { %>
-  <table class="table table-bordered table-striped">
-    <thead>
-      <tr>
-        <th>SKU</th>
-        <th>Name</th>
-        <th>Price</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% items.forEach((item) => { %>
-        <tr>
-          <td><%= item.sku %></td>
-          <td><%= item.name %></td>
-          <td>€<%= item.price %></td>
-          <td>
-            <!-- Add to Basket Form -->
-            <form method="POST" action="/basket/add">
-              <input type="hidden" name="sku" value="<%= item.sku %>">
-              <input type="hidden" name="quantity" value="1">
-              <button type="submit" class="btn btn-success">Add to Basket</button>
-            </form>
-          </td>
-        </tr>
-      <% }); %>
-    </tbody>
-  </table>
-<% } else { %>
-  <p class="lead">Nothing to see here yet</p>
-<% } %>
-
-<!-- Pagination Section -->
-<% if (totalPages > 1) { %>
-  <nav aria-label="Page navigation" class="mt-3">
-    <ul class="pagination justify-content-center">
-      <% if (currentPage > 1) { %>
-        <!-- Previous Page Link -->
-        <li class="page-item">
-          <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
-        </li>
-      <% } %>
-      <% for (let i = 1; i <= totalPages; i++) { %>
-        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-          <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-        </li>
-      <% } %>
-      <% if (currentPage < totalPages) { %>
-        <!-- Next Page Link -->
-        <li class="page-item">
-          <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
-        </li>
-      <% } %>
-    </ul>
-  </nav>
-<% } %>

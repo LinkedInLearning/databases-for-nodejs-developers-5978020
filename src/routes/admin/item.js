@@ -1,12 +1,7 @@
 export default async function (fastify) {
   // Route to display and manage items
   fastify.get("/", async (request, reply) => {
-    // Placeholder for fetching items from the database
-    const items = [
-      // Example data, replace with database query
-      { id: "1", sku: "1001", name: "Example Item 1", price: 10.99 },
-      { id: "2", sku: "1002", name: "Example Item 2", price: 15.49 }
-    ];
+    const items = await fastify.Item.find({});
 
     return reply.view("admin/item.ejs", {
       title: "Manage Items",
@@ -43,8 +38,7 @@ export default async function (fastify) {
   fastify.get("/:id", async (request, reply) => {
     const { id } = request.params;
 
-    // Placeholder for fetching a single item from the database
-    const item = { id, sku: "1001", name: "Example Item 1", price: 10.99 };
+    const item = await fastify.Item.findById(id);
 
     return reply.view("admin/item.ejs", {
       title: "Edit Item",

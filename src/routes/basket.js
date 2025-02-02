@@ -1,7 +1,19 @@
 export default async function (fastify) {
+  // Middleware function to check if the user is logged in
+  function requireLogin(req, reply) {
+    if (!req.session.get("user")) {
+      req.session.set("messages", [
+        { type: "warning", text: "Please log in first." }
+      ]);
+      return reply.redirect("/user/login");
+    }
+  }
+
   // Route to display basket contents
   fastify.get("/", async (req, reply) => {
     try {
+      requireLogin(req, reply); // Ensure user is logged in
+
       fastify.log.info("Fetching basket contents.");
 
       // TODO: Fetch basket contents from Redis
@@ -24,6 +36,8 @@ export default async function (fastify) {
   // Route to add an item to the basket
   fastify.post("/add", async (req, reply) => {
     try {
+      requireLogin(req, reply); // Ensure user is logged in
+
       const { sku, quantity } = req.body;
       fastify.log.info(`Adding item with SKU: ${sku}, quantity: ${quantity}`);
 
@@ -35,7 +49,6 @@ export default async function (fastify) {
           text: `Item with SKU: ${sku} was added to the basket.`
         }
       ]);
-
       return reply.redirect(req.headers.referer || "/basket");
     } catch (error) {
       fastify.log.error("Error adding item to basket:", error);
@@ -49,6 +62,8 @@ export default async function (fastify) {
   // Route to remove an item from the basket
   fastify.post("/remove", async (req, reply) => {
     try {
+      requireLogin(req, reply); // Ensure user is logged in
+
       const { sku } = req.body;
       fastify.log.info(`Removing item with SKU: ${sku}`);
 
@@ -60,7 +75,6 @@ export default async function (fastify) {
           text: `Item with SKU: ${sku} was removed from the basket.`
         }
       ]);
-
       return reply.redirect(req.headers.referer || "/basket");
     } catch (error) {
       fastify.log.error("Error removing item from basket:", error);
@@ -74,6 +88,8 @@ export default async function (fastify) {
   // Route to buy all items in the basket
   fastify.post("/buy", async (req, reply) => {
     try {
+      requireLogin(req, reply); // Ensure user is logged in
+
       fastify.log.info("Processing basket purchase...");
 
       // TODO: Retrieve basket items from Redis and process purchase
@@ -85,7 +101,6 @@ export default async function (fastify) {
           text: "Thank you for your purchase! Your basket has been processed."
         }
       ]);
-
       return reply.redirect("/confirmation");
     } catch (error) {
       fastify.log.error("Error processing basket purchase:", error);
@@ -99,6 +114,8 @@ export default async function (fastify) {
   // Route to clear the basket
   fastify.post("/clear", async (req, reply) => {
     try {
+      requireLogin(req, reply); // Ensure user is logged in
+
       fastify.log.info("Clearing all items from the basket.");
 
       // TODO: Clear all basket items from Redis
@@ -106,7 +123,6 @@ export default async function (fastify) {
       req.session.set("messages", [
         { type: "success", text: "Your basket has been cleared." }
       ]);
-
       return reply.redirect(req.headers.referer || "/basket");
     } catch (error) {
       fastify.log.error("Error clearing basket:", error);

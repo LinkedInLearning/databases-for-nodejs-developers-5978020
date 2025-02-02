@@ -1,5 +1,7 @@
 import fp from "fastify-plugin";
 import { Sequelize } from "sequelize";
+import { readdir } from "fs/promises";
+import path from "path";
 
 async function sequelizePlugin(fastify, config) {
   let mysqlStatus = "disconnected";
@@ -11,6 +13,30 @@ async function sequelizePlugin(fastify, config) {
     fastify.log.info("Connected to MySQL");
     mysqlStatus = "connected";
     fastify.decorate("sequelize", sequelize);
+
+    // Deal with models
+    const models = {};
+    const modelsPath = path.resolve("src/models/sequelize");
+    const modelFiles = await readdir(modelsPath);
+
+    for (const file of modelFiles) {
+      if (file.endsWith(".js")) {
+        const model = (await import(path.join(modelsPath, file))).default(
+          sequelize,
+          Sequelize.DataTypes
+        );
+        models[model.name] = model;
+        fastify.log.info(`Sequelize model ${model.name} loaded`);
+      }
+    }
+    Object.values(models).forEach((model) => {
+      if (model.associate) {
+        model.associate(models);
+      }
+    });
+
+    await sequelize.sync({ alter: false });
+    fastify.log.info("Sequelize models synced successfully");
   } catch (err) {
     fastify.log.error("Failed to connect to MySQL");
     throw err;

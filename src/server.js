@@ -24,9 +24,6 @@ fastify.register(staticPlugin);
 // Register the defaults plugin
 fastify.register(defaultsPlugin);
 
-// Register the session plugin
-fastify.register(sessionPlugin, config.session);
-
 // Register MogoDB/Mongoose plugin
 fastify.register(mongoosePlugin, config.mongodb);
 
@@ -35,6 +32,9 @@ fastify.register(sequelizePlugin, config.mysql);
 
 // Register Redis plugin
 fastify.register(redisPlugin, config.redis);
+
+// Register the session plugin AFTER Redis is available
+fastify.register(sessionPlugin, config.session);
 
 // Register the view plugin
 fastify.register(viewPlugin);

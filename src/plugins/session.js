@@ -44,16 +44,6 @@ async function sessionPlugin(fastify, config) {
       return result;
     };
   });
-
-  // Middleware to check authentication before accessing protected routes
-  fastify.decorate("requireLogin", (req, reply) => {
-    if (!req.session.get("user")) {
-      req.session.set("messages", [
-        { type: "warning", text: "Please log in first." }
-      ]);
-      return reply.redirect("/user/login");
-    }
-  });
 }
 
 export default fp(sessionPlugin, { name: "session-plugin" });

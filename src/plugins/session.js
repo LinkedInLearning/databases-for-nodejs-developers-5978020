@@ -1,5 +1,7 @@
 import fp from "fastify-plugin";
-import fastifySecureSession from "@fastify/secure-session";
+import fastifyCookie from "@fastify/cookie";
+import fastifySession from "@fastify/session";
+import { RedisStore } from "connect-redis";
 
 async function sessionPlugin(fastify, config) {
   const secret = config.secret;
@@ -10,20 +12,30 @@ async function sessionPlugin(fastify, config) {
     );
   }
 
+  fastify.register(fastifyCookie);
+
+  const redisStore = new RedisStore({
+    client: fastify.redis,
+    prefix: "myshop:"
+  });
+
   // Register fastify-secure-session
-  fastify.register(fastifySecureSession, {
-    key: Buffer.from(secret, "base64"),
+  fastify.register(fastifySession, {
+    store: redisStore,
+    secret,
     cookie: {
       path: "/",
       httpOnly: true,
       secure: false,
-      maxAge: 3600 // 1-hour session expiration
-    }
+      maxAge: 3600 * 1000 // 1-hour session expiration
+    },
+    saveUnitialized: false,
+    resave: false
   });
 
   // Decorate to clear session
   fastify.decorate("clearSession", (req) => {
-    req.session.delete();
+    req.session.set("user", null);
   });
 
   // PreHandler: Attach session messages to locals

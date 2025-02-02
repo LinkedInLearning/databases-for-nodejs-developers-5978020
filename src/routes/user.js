@@ -55,16 +55,15 @@ export default async function (fastify) {
       }
 
       req.session.set("user", { id: user.id, email: user.email });
-      req.session.set("messages", [
-        { type: "success", text: "Successfully logged in." }
-      ]);
+      req.session.set("messages", [{ type: "success", text: "Successfully." }]);
       return reply.redirect("/user/login");
     }
   );
 
   // GET /logout - Clear the session and redirect to the login page
   fastify.get("/logout", async (req, reply) => {
-    req.session.delete(); // Clear the session
+    fastify.clearSession(req); // Clear the session
+
     req.session.set("messages", [
       { type: "success", text: "You have been logged out." }
     ]);

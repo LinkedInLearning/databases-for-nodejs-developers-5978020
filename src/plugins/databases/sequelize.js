@@ -37,6 +37,7 @@ async function sequelizePlugin(fastify, config) {
 
     await sequelize.sync({ alter: false });
     fastify.log.info("Sequelize models synced successfully");
+    fastify.decorate("models", models);
   } catch (err) {
     fastify.log.error("Failed to connect to MySQL");
     throw err;

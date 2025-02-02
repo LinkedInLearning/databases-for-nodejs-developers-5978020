@@ -4,14 +4,11 @@ export default async function (fastify) {
     try {
       // Placeholder: Fetch users from the database
       const users = []; // Replace with actual database query
-      const messages = request.session.get("messages") || [];
-      request.session.set("messages", []); // Clear messages after retrieval
 
       return reply.view("admin/user.ejs", {
         title: "Manage Users",
         currentPath: "/admin/user",
-        users,
-        messages
+        users
       });
     } catch (error) {
       request.log.error(error);
@@ -29,15 +26,16 @@ export default async function (fastify) {
     try {
       if (userId) {
         // Placeholder: Update existing user in the database
-        return reply
-          .code(200)
-          .send({ success: true, message: "User updated." });
+        request.session.set("messages", [
+          { type: "success", text: "User updated successfully." }
+        ]);
       } else {
         // Placeholder: Create a new user in the database
-        return reply
-          .code(201)
-          .send({ success: true, message: "User created." });
+        request.session.set("messages", [
+          { type: "success", text: "User created successfully." }
+        ]);
       }
+      return reply.redirect("/admin/user");
     } catch (error) {
       request.log.error(error);
       request.session.set("messages", [
@@ -75,7 +73,10 @@ export default async function (fastify) {
 
     try {
       // Placeholder: Delete user from the database
-      return reply.code(200).send({ success: true, message: "User deleted." });
+      request.session.set("messages", [
+        { type: "success", text: "User deleted successfully." }
+      ]);
+      return reply.redirect("/admin/user");
     } catch (error) {
       request.log.error(error);
       request.session.set("messages", [

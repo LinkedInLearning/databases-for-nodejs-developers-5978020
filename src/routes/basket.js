@@ -1,87 +1,119 @@
 export default async function (fastify) {
   // Route to display basket contents
   fastify.get("/", async (request, reply) => {
-    // Fetch session messages
-    const messages = request.session.get("messages") || [];
-    request.session.set("messages", []); // Clear messages after retrieval
+    try {
+      fastify.log.info("Fetching basket contents.");
 
-    // Placeholder for fetching basket contents from Redis
-    fastify.log.info("Fetching basket contents.");
+      // TODO: Fetch basket contents from Redis
+      const items = []; // Replace this with Redis retrieval logic
 
-    return reply.view("basket.ejs", {
-      title: "Your Basket",
-      currentPath: "/basket",
-      items: [], // Items will be fetched from Redis later
-      messages
-    });
+      return reply.view("basket.ejs", {
+        title: "Your Basket",
+        currentPath: "/basket",
+        items
+      });
+    } catch (error) {
+      fastify.log.error("Error fetching basket contents:", error);
+      request.session.set("messages", [
+        { type: "danger", text: "Failed to load basket contents." }
+      ]);
+      return reply.redirect("/basket");
+    }
   });
 
   // Route to add an item to the basket
   fastify.post("/add", async (request, reply) => {
-    const { sku, quantity } = request.body;
+    try {
+      const { sku, quantity } = request.body;
+      fastify.log.info(`Adding item with SKU: ${sku}, quantity: ${quantity}`);
 
-    // Log the action
-    fastify.log.info(`Adding item with SKU: ${sku}, quantity: ${quantity}`);
+      // TODO: Add the item to the Redis basket
 
-    // Add a success message to the session
-    request.session.set("messages", [
-      {
-        type: "success",
-        text: `Item with SKU: ${sku} was added to the basket.`
-      }
-    ]);
+      request.session.set("messages", [
+        {
+          type: "success",
+          text: `Item with SKU: ${sku} was added to the basket.`
+        }
+      ]);
 
-    // Redirect back to the referring page or the basket page
-    return reply.redirect(request.headers.referer || "/basket");
+      return reply.redirect(request.headers.referer || "/basket");
+    } catch (error) {
+      fastify.log.error("Error adding item to basket:", error);
+      request.session.set("messages", [
+        { type: "danger", text: "Failed to add item to the basket." }
+      ]);
+      return reply.redirect(request.headers.referer || "/basket");
+    }
   });
 
   // Route to remove an item from the basket
   fastify.post("/remove", async (request, reply) => {
-    const { sku } = request.body;
+    try {
+      const { sku } = request.body;
+      fastify.log.info(`Removing item with SKU: ${sku}`);
 
-    // Log the action
-    fastify.log.info(`Removing item with SKU: ${sku}`);
+      // TODO: Remove the item from the Redis basket
 
-    // Add a success message to the session
-    request.session.set("messages", [
-      {
-        type: "success",
-        text: `Item with SKU: ${sku} was removed from the basket.`
-      }
-    ]);
+      request.session.set("messages", [
+        {
+          type: "success",
+          text: `Item with SKU: ${sku} was removed from the basket.`
+        }
+      ]);
 
-    // Redirect back to the referring page or the basket page
-    return reply.redirect(request.headers.referer || "/basket");
+      return reply.redirect(request.headers.referer || "/basket");
+    } catch (error) {
+      fastify.log.error("Error removing item from basket:", error);
+      request.session.set("messages", [
+        { type: "danger", text: "Failed to remove item from the basket." }
+      ]);
+      return reply.redirect(request.headers.referer || "/basket");
+    }
   });
 
   // Route to buy all items in the basket
   fastify.post("/buy", async (request, reply) => {
-    // Log the action
-    fastify.log.info("Processing basket purchase...");
+    try {
+      fastify.log.info("Processing basket purchase...");
 
-    // Add a success message to the session
-    request.session.set("messages", [
-      {
-        type: "success",
-        text: "Thank you for your purchase! Your basket has been processed."
-      }
-    ]);
+      // TODO: Retrieve basket items from Redis and process purchase
+      // TODO: Clear the basket after successful purchase
 
-    // Redirect to a confirmation page
-    return reply.redirect("/confirmation");
+      request.session.set("messages", [
+        {
+          type: "success",
+          text: "Thank you for your purchase! Your basket has been processed."
+        }
+      ]);
+
+      return reply.redirect("/confirmation");
+    } catch (error) {
+      fastify.log.error("Error processing basket purchase:", error);
+      request.session.set("messages", [
+        { type: "danger", text: "Failed to process your purchase." }
+      ]);
+      return reply.redirect("/basket");
+    }
   });
 
   // Route to clear the basket
   fastify.post("/clear", async (request, reply) => {
-    // Log the action
-    fastify.log.info("Clearing all items from the basket.");
+    try {
+      fastify.log.info("Clearing all items from the basket.");
 
-    // Add a success message to the session
-    request.session.set("messages", [
-      { type: "success", text: "Your basket has been cleared." }
-    ]);
+      // TODO: Clear all basket items from Redis
 
-    // Redirect back to the referring page or the basket page
-    return reply.redirect(request.headers.referer || "/basket");
+      request.session.set("messages", [
+        { type: "success", text: "Your basket has been cleared." }
+      ]);
+
+      return reply.redirect(request.headers.referer || "/basket");
+    } catch (error) {
+      fastify.log.error("Error clearing basket:", error);
+      request.session.set("messages", [
+        { type: "danger", text: "Failed to clear the basket." }
+      ]);
+      return reply.redirect(request.headers.referer || "/basket");
+    }
   });
 }

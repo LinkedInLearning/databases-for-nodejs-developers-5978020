@@ -35,7 +35,7 @@ export default async function (fastify) {
         }
         user.email = email;
         if (password) {
-          user.password = password;
+          await user.setPassword(password);
         }
         await user.save();
         request.session.set("messages", [

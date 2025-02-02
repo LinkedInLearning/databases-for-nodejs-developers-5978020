@@ -28,6 +28,10 @@ export default (sequelize, DataTypes) => {
     this.password = hashedPassword;
   };
 
+  User.prototype.comparePassword = async function (plainPassword) {
+    return await argon2.verify(this.password, plainPassword);
+  };
+
   User.associate = (models) => {
     User.hasMany(models.Order, { foreignKey: "userId", as: "orders" });
   };

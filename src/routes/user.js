@@ -1,23 +1,15 @@
 export default async function (fastify) {
   // GET /login - Render the login form
   fastify.get("/login", async (req, reply) => {
-    try {
-      if (req.session.get("user")) {
-        // Redirect if already logged in
-        return reply.redirect("/");
-      }
-
-      return reply.view("login", {
-        currentPath: "/user/login",
-        messages: req.session.get("messages") || []
-      });
-    } catch (error) {
-      req.session.set("messages", [
-        { type: "danger", text: "Failed to load login page." }
-      ]);
-      req.log.error("Error rendering login page:", error);
+    if (req.session.get("user")) {
+      // Redirect if already logged in
       return reply.redirect("/");
     }
+
+    return reply.view("login", {
+      currentPath: "/user/login",
+      messages: req.session.get("messages") || []
+    });
   });
 
   // POST /login - Handle login logic with validation
@@ -38,53 +30,44 @@ export default async function (fastify) {
       attachValidation: true // Attach validation errors
     },
     async (req, reply) => {
-      try {
-        if (req.validationError) {
-          req.session.set("messages", [
-            { type: "danger", text: "Invalid email or password format." }
-          ]);
-          return reply.redirect("/user/login");
-        }
+      if (req.validationError) {
+        req.session.set("messages", [
+          { type: "danger", text: "Invalid email or password format." }
+        ]);
+        return reply.redirect("/user/login");
+      }
 
-        const { email, password } = req.body;
-
-        // TODO: Replace with real database authentication logic
-        if (email === "test@example.com" && password === "password123") {
-          req.session.set("user", { email }); // Save user data in session
-          req.session.set("messages", [
-            { type: "success", text: "Successfully logged in." }
-          ]);
-          return reply.redirect("/");
-        }
-
+      const { email, password } = req.body;
+      const user = await fastify.models.User.findOne({ where: { email } });
+      if (!user) {
         req.session.set("messages", [
           { type: "danger", text: "Invalid email or password." }
         ]);
         return reply.redirect("/user/login");
-      } catch (error) {
+      }
+
+      const isPasswordValid = await user.comparePassword(password);
+      if (!isPasswordValid) {
         req.session.set("messages", [
-          { type: "danger", text: "Login failed due to an error." }
+          { type: "danger", text: "Invalid email or password." }
         ]);
-        req.log.error("Error handling login:", error);
         return reply.redirect("/user/login");
       }
+
+      req.session.set("user", { id: user.id, email: user.email });
+      req.session.set("messages", [
+        { type: "success", text: "Successfully logged in." }
+      ]);
+      return reply.redirect("/user/login");
     }
   );
 
   // GET /logout - Clear the session and redirect to the login page
   fastify.get("/logout", async (req, reply) => {
-    try {
-      req.session.delete(); // Clear the session
-      req.session.set("messages", [
-        { type: "success", text: "You have been logged out." }
-      ]);
-      return reply.redirect("/user/login");
-    } catch (error) {
-      req.session.set("messages", [
-        { type: "danger", text: "Failed to log out." }
-      ]);
-      req.log.error("Error logging out:", error);
-      return reply.redirect("/");
-    }
+    req.session.delete(); // Clear the session
+    req.session.set("messages", [
+      { type: "success", text: "You have been logged out." }
+    ]);
+    return reply.redirect("/user/login");
   });
 }

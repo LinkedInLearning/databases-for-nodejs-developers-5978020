@@ -163,7 +163,7 @@ export default async function (fastify) {
           text: "Thank you for your purchase! Your basket has been processed."
         }
       ]);
-      return reply.redirect("/confirmation");
+      return reply.redirect("/");
     } catch (error) {
       fastify.log.error("Error processing basket purchase:", error);
       req.session.set("messages", [

@@ -1,6 +1,12 @@
 # Databases for Node.js Developers
 This is the repository for the LinkedIn Learning course Databases for Node.js Developers. The full course is available from [LinkedIn Learning][lil-course-url].
 
+![lil-thumbnail-url]
+
+## Course Description
+
+In this course, Daniel Khan—a technology lead, developer, and application architect—shows you how to manage databases from SQL and NoSQL, to in-memory databases, and learn how to work with them in real-time applications. Discover the basics and applications of SQL databases like MySQL for structured, relational data, and NoSQL databases like MongoDB for dynamic data storage. Learn how to use Redis for super-fast, in-memory data management that is perfect for session management and real-time processing. Get hands-on experience with connecting databases to Node.js applications through practical examples and projects. Understand how to write, read, update, and delete operations with these databases and incorporate them seamlessly into your web development workflow. By the end of the course, you will be capable of managing complex database operations, ensuring data integrity, and optimizing your web applications for better performance.
+
 _See the readme file in the main branch for updated instructions and information._
 ## Instructions
 This repository has branches for each of the videos in the course. You can use the branch pop up menu in github to switch to a specific branch and take a look at the course at that stage, or you can add `/tree/BRANCH_NAME` to the URL to go to the branch you want to access.
@@ -20,25 +26,18 @@ To resolve this issue:
     Add changes to git using this command: git add .
 	Commit changes using this command: git commit -m "some message"
 
-## Installing
-1. To use these exercise files, you must have the following installed:
-	- [list of requirements for course]
-2. Clone this repository into your local machine using the terminal (Mac), CMD (Windows), or a GUI tool like SourceTree.
-3. [Course-specific instructions]
-
 ## Instructor
 
-Instructor name
+Daniel Khan
 
-Instructor description
-
+Technology Lead, Developer, Application Architect
                             
 
-Check out my other courses on [LinkedIn Learning](https://www.linkedin.com/learning/instructors/).
+Check out my other courses on [LinkedIn Learning](https://www.linkedin.com/learning/instructors/daniel-khan?u=104).
 
 
 [0]: # (Replace these placeholder URLs with actual course URLs)
 
-[lil-course-url]: https://www.linkedin.com/learning/
-[lil-thumbnail-url]: http://
+[lil-course-url]: https://www.linkedin.com/learning/databases-for-node-js-developers-25329301
+[lil-thumbnail-url]: https://media.licdn.com/dms/image/v2/D4E0DAQFkeukZTMUzWQ/learning-public-crop_675_1200/B4EZUlDKTpH0Ag-/0/1740083340781?e=2147483647&v=beta&t=JohyAmMw_Ip6e--vO1-xAmdMmy70m7PhjEBxiESeQJE
 
